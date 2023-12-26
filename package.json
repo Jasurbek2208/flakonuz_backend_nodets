@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "node.ts backend for flakon.uz website.",
   "main": "src/app.ts",
+  "type": "commonjs",
   "private": true,
   "scripts": {
     "start": "node src/app.ts",
