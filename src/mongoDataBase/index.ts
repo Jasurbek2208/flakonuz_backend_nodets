@@ -6,9 +6,7 @@ import fileDelete from '../utils/fileDelete'
 
 require('dotenv').config()
 
-const client = new MongoClient(`mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@flakonuzbackend.hejv0nx.mongodb.net/?ssl=true&retryWrites=true&w=majority`, {
-  ssl: true,
-})
+const client = new MongoClient(`mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@flakonuzbackend.hejv0nx.mongodb.net/?ssl=true&retryWrites=true&w=majority`)
 
 // Connecting to MongoDB
 export async function Connect() {
