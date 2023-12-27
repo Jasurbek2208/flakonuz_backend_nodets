@@ -15,7 +15,7 @@ const admins = getDBCollection(dbNames.admins, adminsDBCollections.admins)
 
 // Login
 const login = async (req: Request, res: Response) => {
-  const { username, password } = req.body
+  const { username, password } = req?.body
 
   if (!username || !password) return res.status(401).json({ message: 'Username and password required!' })
   if (username?.length < 4 || username?.length > 8) return res.status(401).json({ message: 'The length of the "Username" should be 4 characters more and less than 8 characters!' })
