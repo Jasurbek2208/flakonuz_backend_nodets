@@ -2,11 +2,10 @@
   "name": "flakonuz_backend",
   "version": "1.0.0",
   "description": "node.ts backend for flakon.uz website.",
-  "main": "src/app.ts",
-  "type": "commonjs",
+  "main": "dist/server.js",
   "private": true,
   "scripts": {
-    "start": "node src/app.ts",
+    "start": "node dist/app.js",
     "dev": "nodemon src/app.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc"

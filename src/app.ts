@@ -1,4 +1,4 @@
-import express from 'express/index.js'
+import express, { Express } from 'express'
 import cors from 'cors'
 require('dotenv').config()
 
@@ -8,17 +8,17 @@ import { aboutRoutes, authRoutes, categoriesRoutes, materialsRoutes, imagesRoute
 // MongoDB
 import { Connect } from './mongoDataBase'
 
-const app = express()
+const app: Express = express()
 const PORT = process.env.PORT || 3000
 
 // app.use(express.json())
-const corsOptions = {
-  origin: 'http://localhost:5173',
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
-};
+// const corsOptions = {
+//   origin: 'http://localhost:5173',
+//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+//   credentials: true,
+// }
 
-app.use(cors(corsOptions));
+app.use(cors())
 
 // app.use((req: Request, res: Response, next: NextFunction) => {
 //   res.header('Access-Control-Allow-Origin', '*')
