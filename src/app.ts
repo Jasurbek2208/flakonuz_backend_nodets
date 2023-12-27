@@ -1,4 +1,4 @@
-import express from 'express'
+import express from 'express/index'
 import cors from 'cors'
 require('dotenv').config()
 
