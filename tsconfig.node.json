@@ -1,10 +1,14 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "composite": true,
-    "skipLibCheck": true,
-    "module": "commonjs",
-    "moduleResolution": "Node",
-    "allowSyntheticDefaultImports": true
+    "module": "CommonJS",
+    "target": "ES2020",
+    "moduleResolution": "node",
+    "types": ["node"],
+    "lib": ["es2020"],
+    "declaration": false,
+    "outDir": "./dist"
   },
-  "include": ["vite.config.ts"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }

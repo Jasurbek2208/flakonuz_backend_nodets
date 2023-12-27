@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from 'express'
+import express from 'express'
 import cors from 'cors'
 require('dotenv').config()
 
@@ -6,7 +6,7 @@ require('dotenv').config()
 import { aboutRoutes, authRoutes, categoriesRoutes, materialsRoutes, imagesRoutes, productsRoutes, colorsRoutes, manufacturersRoutes } from './router'
 
 // MongoDB
-import { Connect, getDBCollection } from './mongoDataBase'
+import { Connect } from './mongoDataBase'
 
 const app = express()
 const PORT = process.env.PORT || 3000
