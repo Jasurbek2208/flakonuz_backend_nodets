@@ -4,7 +4,7 @@ import multer from 'multer';
 // Auth middleware
 import { authMiddleware } from '../auth/authMiddleware'
 
-import { getAboutSettings, sendFeedback, updateAboutSettings, getCompanyNews, getCurrentCompanyNews, deleteCurrentNews, deleteManyCompanyNews, editCurrentCompanyNews, addCurrentCompanyNews, getStatistics } from '../controllers/about'
+import { getAboutSettings, sendFeedback, updateAboutSettings, getCompanyNews, getCurrentCompanyNews, deleteCurrentNews, deleteManyCompanyNews, editCurrentCompanyNews, addCurrentCompanyNews, getStatistics, getCatalogPDF } from '../controllers/about'
 
 const router = express.Router()
 
@@ -22,12 +22,13 @@ const upload = multer({ storage: storage })
 
 // About routes
 router.get('/', getAboutSettings)
+router.get('/catalog-pdf', getCatalogPDF)
 router.post('/feedback', upload.none(), sendFeedback)
 router.put('/update/:id', authMiddleware, upload.none(), updateAboutSettings)
 
 // Company news routes
 router.get('/news/list', getCompanyNews)
-router.get('/news/:id', getCurrentCompanyNews)
+router.get('/news/list/:id', getCurrentCompanyNews)
 router.post('/news', authMiddleware, upload.single('image'), addCurrentCompanyNews)
 router.put('/news/:id', authMiddleware, upload.single('image'), editCurrentCompanyNews)
 router.delete('/news/delete/:id', authMiddleware, deleteCurrentNews)

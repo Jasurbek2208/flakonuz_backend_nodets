@@ -19,7 +19,7 @@ export async function getCategoriesList(req: Request, res: Response) {
     const page = parseInt(req?.query?.page as string, 10) || 1
     const limit = parseInt(req?.query?.limit as string, 10) || 10
     const search = (req?.query?.search as string) || ''
-    const searchParam = (req?.query?.searchParam as string) || ''
+    const searchParam = (req?.query?.searchParam as string) || 'title_en'
 
     // Get category list with pagination and search
     const categoriesList = await getAllDataInDBCollection(dbNames.contentDB, contentDBCollections.categories)
@@ -173,9 +173,9 @@ export async function editCurrentCategory(req: Request, res: Response) {
     if (data.categories) {
       delete data.categories
     }
-      delete (data as any)?.aboutCatalog_en
-      delete (data as any)?.aboutCatalog_ru
-      delete (data as any)?.aboutCatalog_uz
+    delete (data as any)?.aboutCatalog_en
+    delete (data as any)?.aboutCatalog_ru
+    delete (data as any)?.aboutCatalog_uz
 
     const response = await categoryDB.replaceOne({ id: categoryId }, data)
 
@@ -220,7 +220,7 @@ export async function deleteManyCategories(req: Request, res: Response) {
     }
     // Get all images in db collection
     const imageDB = getDBCollection(dbNames.images, contentDBCollections.categories)
-    const imagesDB = await imageDB.find({}).toArray() as IImage[] | []
+    const imagesDB = (await imageDB.find({}).toArray()) as IImage[] | []
 
     // Convert each string ID to ObjectID
     const objectIds = categoriesId?.map((id: string) => new ObjectId(id))

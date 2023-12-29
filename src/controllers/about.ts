@@ -1,6 +1,9 @@
 import { Request, Response } from 'express'
 import { v4 } from 'uuid'
+import axios from 'axios'
 import fs from 'fs'
+
+require('dotenv').config()
 
 // MongoDB
 import { Collection, Document, ObjectId } from 'mongodb'
@@ -40,7 +43,35 @@ export async function sendFeedback(req: Request, res: Response) {
       return res.status(401).json({ message: 'name, mail, message params are required!' })
     }
 
-    res.status(200).json({ success: true, message_en: 'Message sent successfully!', message_ru: 'Сообщение успешно отправлено!', message_uz: 'Xabar muvofaqiyatli yuborildi!' })
+    const TOKEN = process.env.TOKEN || ''
+    const CHAT_ID = process.env.CHAT_ID || ''
+    const FEEDBACK_API_URL = `https://api.telegram.org/bot${TOKEN}/sendMessage`
+
+    const htmlMessage: string = `<b >Имя: </b> ${name} \n \n<b>E-mail: </b> ${mail} \n \n<b>Сообщение: </b> ${message}`
+
+    const response = await axios.post(
+      FEEDBACK_API_URL,
+      {
+        chat_id: CHAT_ID,
+        parse_mode: 'html',
+        text: htmlMessage,
+      },
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      },
+    )
+    if ((response?.data as any)?.ok) {
+      res.status(200).json({ success: true, message_en: 'Message sent successfully!', message_ru: 'Сообщение успешно отправлено!', message_uz: 'Xabar muvofaqiyatli yuborildi!' })
+    } else {
+      res.status(500).json({
+        success: false,
+        message_en: 'Message could not be sent, please try again later!',
+        message_ru: 'Не удалось отправить сообщение. Повторите попытку позже!',
+        message_uz: "Xabar yuborilmadi, birozdan so'ng qayta urinib ko'ring!",
+      })
+    }
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -299,7 +330,7 @@ export async function deleteManyCompanyNews(req: Request, res: Response) {
     }
     // Get all images in db collection
     const imageDB = getDBCollection(dbNames.images, companyDBCollections.news)
-    const imagesDB = await imageDB.find({}).toArray() as IImage[] | []
+    const imagesDB = (await imageDB.find({}).toArray()) as IImage[] | []
 
     // Convert each string ID to ObjectID
     const objectIds = newsId?.map((id: string) => new ObjectId(id))
@@ -362,6 +393,25 @@ export async function getStatistics(req: Request, res: Response) {
     }
 
     res.status(200).json(statistics)
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
+
+export async function getCatalogPDF(req: Request, res: Response) {
+  try {
+    const filePath = 'src/uploads/catalogflakon2211.pdf'
+
+    // Check if the file exists
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'File not found' })
+    }
+
+    // Read the file and send it as a response
+    const fileStream = fs.createReadStream(filePath)
+    fileStream.pipe(res)
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition', 'inline; filename=catalogflakon2211.pdf')
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' })
   }
