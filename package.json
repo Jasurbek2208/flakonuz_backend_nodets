@@ -2,7 +2,7 @@
   "name": "flakonuz_backend",
   "version": "1.0.0",
   "description": "node.ts backend for flakon.uz website.",
-  "main": "dist/server.js",
+  "main": "src/app.ts",
   "private": true,
   "scripts": {
     "start": "nodemon src/app.ts",
