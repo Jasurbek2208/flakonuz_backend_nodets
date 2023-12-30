@@ -1,5 +1,6 @@
 import express, { Express, NextFunction, Request, Response } from 'express'
 import bodyParser from 'body-parser'
+import http from 'http'
 import cors from 'cors'
 require('dotenv').config()
 
@@ -11,7 +12,7 @@ import { Connect } from './mongoDataBase'
 
 const app: Express = express()
 const PORT = Number(process.env.PORT) || 3000
-const EXTERNAL_IP = process.env.EXTERNAL_IP || '000.000.0.000'
+const EXTERNAL_IP = process.env.EXTERNAL_IP || '0.0.0.0'
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -25,12 +26,12 @@ app.use(express.json())
 
 app.use(cors())
 
-// app.use((req: Request, res: Response, next: NextFunction) => {
-//   res.header('Access-Control-Allow-Origin', 'http://localhost:5173')
-//   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
-//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
-//   next()
-// })
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+  next()
+})
 
 // ========== Routes ==========
 // Auth routes
@@ -49,6 +50,8 @@ app.use('/api/manufacturers', manufacturersRoutes)
 // Connecting MongoDB
 Connect()
 
-app.listen(PORT, EXTERNAL_IP, () => {
-  console.log(`Server listening at http://${EXTERNAL_IP}:${PORT}`)
+const server = http.createServer(app)
+
+server.listen(PORT, EXTERNAL_IP, () => {
+  console.log(`Server running at http://${EXTERNAL_IP}:${PORT}`)
 })
