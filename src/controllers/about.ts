@@ -105,7 +105,7 @@ export async function updateAboutSettings(req: Request, res: Response) {
     }
 
     const response = await db.updateOne({ id: settingsId }, data)
-    if (response?.upsertedCount === 0) return res.status(500).json({ message: 'Settings not updated!' })
+    if (response?.upsertedCount === 0) return res.status(404).json({ message: 'Settings not updated!' })
 
     res.status(200).json({ message: 'Settings successfull updated!', data })
   } catch (error) {
@@ -176,7 +176,7 @@ export async function getCurrentCompanyNews(req: Request, res: Response) {
     // Get current news
     const news: ICompanyNews | null = (await getCurrentDataInDBCollection(dbNames.companyDB, companyDBCollections.news, newsId)) as ICompanyNews | null
 
-    if (!news) return res.status(500).json({ message: 'News not found!' })
+    if (!news) return res.status(404).json({ message: 'News not found!' })
     const imagesDB: Collection<Document> | string = getDBCollection(dbNames.images, imagesDBCollections.companyNews)
 
     // Enhance with images
@@ -209,7 +209,7 @@ export async function addCurrentCompanyNews(req: Request, res: Response) {
     const fileName = `src/uploads/${file.filename}`
 
     fs.readFile(fileName, async (err, data) => {
-      if (err) return res.status(500).json({ message: 'Image file not found!' })
+      if (err) return res.status(404).json({ message: 'Image file not found!' })
       try {
         await uploadImageToDB(dbNames.images, companyDBCollections.news, imageId, fileName)
       } catch {
@@ -230,7 +230,7 @@ export async function addCurrentCompanyNews(req: Request, res: Response) {
     }
 
     const response = await newsDB.insertOne(data)
-    if (!response.insertedId) return res.status(500).json({ message: 'Company News not found!' })
+    if (!response.insertedId) return res.status(404).json({ message: 'Company News not found!' })
 
     res.status(200).json({ message: 'Company News successfull added!' })
   } catch (error) {
@@ -263,10 +263,10 @@ export async function editCurrentCompanyNews(req: Request, res: Response) {
       // deleting news image
       const currentImageId = (currentNews?.image as any) || ''
       const responseImage = await deleteCurrentDataInDBCollection(dbNames.images, companyDBCollections.news, currentImageId)
-      if (responseImage.deletedCount === 0) return res.status(500).json({ message: 'Current Company News image not found in database!' })
+      if (responseImage.deletedCount === 0) return res.status(404).json({ message: 'Current Company News image not found in database!' })
 
       fs.readFile(fileName, async (err, data) => {
-        if (err) return res.status(500).json({ message: 'Image file not found!' })
+        if (err) return res.status(404).json({ message: 'Image file not found!' })
         try {
           await uploadImageToDB(dbNames.images, companyDBCollections.news, imageId, fileName)
         } catch {
@@ -289,7 +289,7 @@ export async function editCurrentCompanyNews(req: Request, res: Response) {
 
     const response = await newsDB.replaceOne({ id: newsId }, data)
 
-    if (response.matchedCount === 0) return res.status(500).json({ message: 'Current Company News not found!' })
+    if (response.matchedCount === 0) return res.status(404).json({ message: 'Current Company News not found!' })
 
     res.status(200).json({ message: 'Current Company News successfull edited!' })
   } catch (error) {
@@ -307,12 +307,12 @@ export async function deleteCurrentNews(req: Request, res: Response) {
     // deleting news image
     const imageId = (currentNews?.image as any) || ''
     const responseImage = await deleteCurrentDataInDBCollection(dbNames.images, companyDBCollections.news, imageId)
-    if (responseImage.deletedCount === 0) return res.status(500).json({ message: 'Current Company News image not found!' })
+    if (responseImage.deletedCount === 0) return res.status(404).json({ message: 'Current Company News image not found!' })
 
     // deleting news
     const response = await deleteCurrentDataInDBCollection(dbNames.companyDB, companyDBCollections.news, newsId)
 
-    if (response.deletedCount === 0) return res.status(500).json({ message: 'Current Company News not found!' })
+    if (response.deletedCount === 0) return res.status(404).json({ message: 'Current Company News not found!' })
 
     res.status(200).json({ message: 'Current Company News successfull deleted!' })
   } catch (error) {
@@ -358,12 +358,12 @@ export async function deleteManyCompanyNews(req: Request, res: Response) {
 
     // Deleting news images in DB Collection
     const resultImage = await imageDB.deleteMany({ _id: { $in: objectImagesIds } })
-    if (resultImage?.deletedCount === 0) return res.status(500).json({ message: 'current Company News images not found!' })
+    if (resultImage?.deletedCount === 0) return res.status(404).json({ message: 'Current Company News images not found!' })
 
     // Delete documents with the specified IDs
     const result = await newsDB.deleteMany({ _id: { $in: objectIds } })
 
-    if (result?.deletedCount === 0) return res.status(500).json({ message: 'Current Company News not found!' })
+    if (result?.deletedCount === 0) return res.status(404).json({ message: 'Current Company News not found!' })
     res.status(200).json({ message: `${result.deletedCount} current Company News deleted!` })
   } catch (error) {
     res.status(500).json({ message: 'Error in deleting current Company News, please try again later!' })

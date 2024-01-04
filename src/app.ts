@@ -5,7 +5,7 @@ import cors from 'cors'
 require('dotenv').config()
 
 // Routers
-import { aboutRoutes, authRoutes, categoriesRoutes, materialsRoutes, imagesRoutes, productsRoutes, colorsRoutes, manufacturersRoutes } from './router'
+import { aboutRoutes, authRoutes, userRoutes, categoriesRoutes, materialsRoutes, imagesRoutes, productsRoutes, colorsRoutes, manufacturersRoutes } from './router'
 
 // MongoDB
 import { Connect } from './mongoDataBase'
@@ -36,6 +36,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // ========== Routes ==========
 // Auth routes
 app.use('/api/auth', authRoutes)
+
+// User routes
+app.use('/api/user', userRoutes)
 
 // Basic routes
 app.use('/api/about', aboutRoutes)

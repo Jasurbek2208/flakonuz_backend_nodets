@@ -56,7 +56,7 @@ export async function getCurrentColor(req: Request, res: Response) {
     // Get current color
     const color: IColor | null = (await getCurrentDataInDBCollection(dbNames.contentDB, contentDBCollections.colors, colorId)) as IColor | null
 
-    if (!color) return res.status(500).json({ message: 'Color not found!' })
+    if (!color) return res.status(404).json({ message: 'Color not found!' })
 
     // Send color
     res.status(200).json(color)
@@ -84,7 +84,7 @@ export async function addCurrentColor(req: Request, res: Response) {
     }
 
     const response = await colorDB.insertOne(data)
-    if (!response.insertedId) return res.status(500).json({ message: 'Color not found!' })
+    if (!response.insertedId) return res.status(404).json({ message: 'Color not found!' })
 
     res.status(200).json({ message: 'Color successfull added!' })
   } catch (error) {
@@ -114,7 +114,7 @@ export async function editCurrentColor(req: Request, res: Response) {
 
     const response = await colorDB.replaceOne({ id: colorId }, data)
 
-    if (response.matchedCount === 0) return res.status(500).json({ message: 'Color not found!' })
+    if (response.matchedCount === 0) return res.status(404).json({ message: 'Color not found!' })
 
     res.status(200).json({ message: 'Color successfull edited!' })
   } catch (error) {
@@ -129,7 +129,7 @@ export async function deleteCurrentColor(req: Request, res: Response) {
     // deleting color
     const response = await deleteCurrentDataInDBCollection(dbNames.contentDB, contentDBCollections.colors, colorId)
 
-    if (response.deletedCount === 0) return res.status(500).json({ message: 'Color not found!' })
+    if (response.deletedCount === 0) return res.status(404).json({ message: 'Color not found!' })
 
     res.status(200).json({ message: 'Color successfull deleted!' })
   } catch (error) {
@@ -155,7 +155,7 @@ export async function deleteManyColor(req: Request, res: Response) {
     // Delete documents with the specified IDs
     const result = await colorDB.deleteMany({ _id: { $in: objectIds } })
 
-    if (result?.deletedCount === 0) return res.status(500).json({ message: 'Colors not found!' })
+    if (result?.deletedCount === 0) return res.status(404).json({ message: 'Colors not found!' })
     res.status(200).json({ message: `${result.deletedCount} colors deleted!` })
   } catch (error) {
     res.status(500).json({ message: 'Error in deleting colors, please try again later!' })

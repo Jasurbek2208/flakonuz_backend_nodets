@@ -1,8 +1,9 @@
-export { default as authRoutes } from "./auth"
-export { default as aboutRoutes } from "./about"
-export { default as colorsRoutes } from "./colors"
-export { default as imagesRoutes } from "./images"
-export { default as productsRoutes } from "./products"
-export { default as materialsRoutes } from "./material"
-export { default as categoriesRoutes } from "./categories"
-export { default as manufacturersRoutes } from "./manufacturer"
+export{default as userRoutes}from'./user'
+export{default as authRoutes}from'./auth'
+export{default as aboutRoutes}from'./about'
+export{default as colorsRoutes}from'./colors'
+export{default as imagesRoutes}from'./images'
+export{default as productsRoutes}from'./products'
+export{default as materialsRoutes}from'./material'
+export{default as categoriesRoutes}from'./categories'
+export{default as manufacturersRoutes}from'./manufacturer'

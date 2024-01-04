@@ -4,10 +4,12 @@
     "module": "CommonJS",
     "target": "ES2020",
     "moduleResolution": "node",
-    "types": ["node"],
+    "types": ["node", "jest", "express"],
     "lib": ["es2020"],
-    "declaration": false,
-    "outDir": "./dist"
+    // "declaration": false,
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationDir": "./types"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]

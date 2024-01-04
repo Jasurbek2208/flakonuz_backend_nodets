@@ -5,6 +5,7 @@ import { adminsDBCollections, dbNames } from '../utils/constants'
 import { getDBCollection } from '../mongoDataBase'
 
 // Utils
+import updateDB from '../utils/updateDBJSON'
 import passwordHasher from '../utils/passwordHasher'
 
 // Types
@@ -18,7 +19,7 @@ const login = async (req: Request, res: Response) => {
   const { username, password } = req?.body
 
   if (!username || !password) return res.status(401).json({ message: 'Username and password required!' })
-  if (username?.length < 4 || username?.length > 8) return res.status(401).json({ message: 'The length of the "Username" should be 4 characters more and less than 8 characters!' })
+  if (username?.length < 4 || username?.length > 12) return res.status(401).json({ message: 'The length of the "Username" should be 4 characters more and less than 12 characters!' })
   if (password?.length < 4 || password?.length > 8) return res.status(401).json({ message: 'The length of the "Password" should be 4 characters more and less than 8 characters!' })
 
   const user: IUser | null = (await admins.findOne({ username: username })) as IUser | null
@@ -28,12 +29,13 @@ const login = async (req: Request, res: Response) => {
   const validPassword = passwordHasher(user?.password, user?.id)
 
   if (username && password && password === validPassword) {
-    res.status(200)
+    const db = await updateDB('USERS', null, 'GET')
+    const currentDBImage = await db.find((item: any) => item?.id === user?.image)
 
-    res.json({
+    res.status(200).json({
       status: 200,
       message: 'You entered your account successfully!',
-      user: { _id: user?._id, name: user?.name, surname: user?.surname, username: user?.username, image: user?.image },
+      user: { _id: user?._id, id: user?.id, name: user?.name, surname: user?.surname, username: user?.username, image: currentDBImage },
       access_token: user?.access_token,
     })
   } else {
@@ -59,11 +61,13 @@ const userme = async (req: Request, res: Response) => {
       message: 'Unauthorized. Token not found in the database.',
     })
   }
+  const db = await updateDB('USERS', null, 'GET')
+  const currentDBImage = await db.find((item: any) => item?.id === currentUser?.image)
 
   res.status(200)
   res.json({
     status: 200,
-    user: { _id: currentUser?._id, name: currentUser?.name, surname: currentUser?.surname, username: currentUser?.username, image: currentUser?.image },
+    user: { _id: currentUser?._id, id: currentUser?.id, name: currentUser?.name, surname: currentUser?.surname, username: currentUser?.username, image: currentDBImage },
   })
 }
 

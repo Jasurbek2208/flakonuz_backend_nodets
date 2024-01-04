@@ -30,7 +30,7 @@ export async function getProductsList(req: Request, res: Response) {
       if (!go || go !== 'go-search') {
         return product?.[searchParam]?.toLowerCase()?.includes(search?.toLowerCase())
       } else {
-        const category = req?.query?.parent
+        const category = req?.query?.category
         const material = req?.query?.material
         const ob_min = Number(req?.query?.ob_min)
         const ob_max = Number(req?.query?.ob_max)
@@ -79,7 +79,7 @@ export async function getCurrentProduct(req: Request, res: Response) {
     // Get current product
     const product: IProduct | null = (await getCurrentDataInDBCollection(dbNames.contentDB, contentDBCollections.products, productId)) as IProduct | null
 
-    if (!product) return res.status(500).json({ message: 'Product not found!' })
+    if (!product) return res.status(404).json({ message: 'Product not found!' })
     const imagesDB: Collection<Document> | string = getDBCollection(dbNames.images, imagesDBCollections.products)
 
     // Enhance with images
@@ -112,7 +112,7 @@ export async function addCurrentProduct(req: Request, res: Response) {
     const fileName = `src/uploads/${file.filename}`
 
     fs.readFile(fileName, async (err, data) => {
-      if (err) return res.status(500).json({ message: 'Image file not found!' })
+      if (err) return res.status(404).json({ message: 'Image file not found!' })
       try {
         await uploadImageToDB(dbNames.images, contentDBCollections.products, imageId, fileName)
       } catch {
@@ -133,7 +133,7 @@ export async function addCurrentProduct(req: Request, res: Response) {
     }
 
     const response = await productDB.insertOne(data)
-    if (!response.insertedId) return res.status(500).json({ message: 'Product not found!' })
+    if (!response.insertedId) return res.status(404).json({ message: 'Product not found!' })
 
     res.status(200).json({ message: 'Product successfull added!' })
   } catch (error) {
@@ -180,8 +180,6 @@ export async function editCurrentProduct(req: Request, res: Response) {
         }
       })
     }
-    console.log('imageId: ', imageId)
-    console.log('currentProduct?.image: ', currentProduct?.image)
 
     const data = {
       ...currentProduct,
@@ -194,7 +192,6 @@ export async function editCurrentProduct(req: Request, res: Response) {
       material: material || currentProduct?.material,
       category: category || currentProduct?.category,
     }
-    console.log('data: ', data)
 
     const response = await productDB.replaceOne({ id: productId }, data)
     if (response.matchedCount === 0) return res.status(404).json({ message: 'Product not found!' })
@@ -214,12 +211,12 @@ export async function deleteCurrentProduct(req: Request, res: Response) {
     // deleting product image
     const imageId = (currentProduct?.image as any) || ''
     const responseImage = await deleteCurrentDataInDBCollection(dbNames.images, contentDBCollections.products, imageId)
-    if (responseImage.deletedCount === 0) return res.status(500).json({ message: 'Product image not found!' })
+    if (responseImage.deletedCount === 0) return res.status(404).json({ message: 'Product image not found!' })
 
     // deleting product
     const response = await deleteCurrentDataInDBCollection(dbNames.contentDB, contentDBCollections.products, productId)
 
-    if (response.deletedCount === 0) return res.status(500).json({ message: 'Product not found!' })
+    if (response.deletedCount === 0) return res.status(404).json({ message: 'Product not found!' })
 
     res.status(200).json({ message: 'Product successfull deleted!' })
   } catch (error) {
@@ -265,12 +262,12 @@ export async function deleteManyProducts(req: Request, res: Response) {
 
     // Deleting products images in DB Collection
     const resultImage = await imageDB.deleteMany({ _id: { $in: objectImagesIds } })
-    if (resultImage?.deletedCount === 0) return res.status(500).json({ message: 'Products images not found!' })
+    if (resultImage?.deletedCount === 0) return res.status(404).json({ message: 'Products images not found!' })
 
     // Delete documents with the specified IDs
     const result = await productDB.deleteMany({ _id: { $in: objectIds } })
 
-    if (result?.deletedCount === 0) return res.status(500).json({ message: 'Products not found!' })
+    if (result?.deletedCount === 0) return res.status(404).json({ message: 'Products not found!' })
     res.status(200).json({ message: `${result.deletedCount} products deleted!` })
   } catch (error) {
     res.status(500).json({ message: 'Error in deleting products, please try again later!' })

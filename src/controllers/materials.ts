@@ -56,7 +56,7 @@ export async function getCurrentMaterial(req: Request, res: Response) {
     // Get current material
     const material: IMaterial | null = (await getCurrentDataInDBCollection(dbNames.contentDB, contentDBCollections.materials, materialId)) as IMaterial | null
 
-    if (!material) return res.status(500).json({ message: 'Material not found!' })
+    if (!material) return res.status(404).json({ message: 'Material not found!' })
 
     // Send material
     res.status(200).json(material)
@@ -82,7 +82,7 @@ export async function addCurrentMaterial(req: Request, res: Response) {
     }
 
     const response = await materialDB.insertOne(data)
-    if (!response.insertedId) return res.status(500).json({ message: 'Material not found!' })
+    if (!response.insertedId) return res.status(404).json({ message: 'Material not found!' })
 
     res.status(200).json({ message: 'Material successfull added!' })
   } catch (error) {
@@ -110,7 +110,7 @@ export async function editCurrentMaterial(req: Request, res: Response) {
 
     const response = await materialDB.replaceOne({ id: materialId }, data)
 
-    if (response.matchedCount === 0) return res.status(500).json({ message: 'Material not found!' })
+    if (response.matchedCount === 0) return res.status(404).json({ message: 'Material not found!' })
 
     res.status(200).json({ message: 'Material successfull edited!' })
   } catch (error) {
@@ -125,7 +125,7 @@ export async function deleteCurrentMaterial(req: Request, res: Response) {
     // deleting material
     const response = await deleteCurrentDataInDBCollection(dbNames.contentDB, contentDBCollections.materials, materialId)
 
-    if (response.deletedCount === 0) return res.status(500).json({ message: 'Material not found!' })
+    if (response.deletedCount === 0) return res.status(404).json({ message: 'Material not found!' })
 
     res.status(200).json({ message: 'Material successfull deleted!' })
   } catch (error) {
@@ -151,7 +151,7 @@ export async function deleteManyMaterial(req: Request, res: Response) {
     // Delete documents with the specified IDs
     const result = await materialDB.deleteMany({ _id: { $in: objectIds } })
 
-    if (result?.deletedCount === 0) return res.status(500).json({ message: 'Materials not found!' })
+    if (result?.deletedCount === 0) return res.status(404).json({ message: 'Materials not found!' })
     res.status(200).json({ message: `${result.deletedCount} materials deleted!` })
   } catch (error) {
     res.status(500).json({ message: 'Error in deleting materials, please try again later!' })

@@ -65,7 +65,7 @@ export async function getCurrentCategory(req: Request, res: Response) {
     // Get current category
     const category: ICategoryData | null = (await getCurrentDataInDBCollection(dbNames.contentDB, contentDBCollections.categories, categoryId)) as ICategoryData | null
 
-    if (!category) return res.status(500).json({ message: 'Category not found!' })
+    if (!category) return res.status(404).json({ message: 'Category not found!' })
     const imagesDB: Collection<Document> | string = getDBCollection(dbNames.images, imagesDBCollections.products)
 
     // Enhance with images
@@ -98,7 +98,7 @@ export async function addCurrentCategory(req: Request, res: Response) {
     const fileName = `src/uploads/${file.filename}`
 
     fs.readFile(fileName, async (err, data) => {
-      if (err) return res.status(500).json({ message: 'Image file not found!' })
+      if (err) return res.status(404).json({ message: 'Image file not found!' })
       try {
         await uploadImageToDB(dbNames.images, contentDBCollections.categories, imageId, fileName)
       } catch {
@@ -118,7 +118,7 @@ export async function addCurrentCategory(req: Request, res: Response) {
     }
 
     const response = await categoryDB.insertOne(data)
-    if (!response.insertedId) return res.status(500).json({ message: 'Category not found!' })
+    if (!response.insertedId) return res.status(404).json({ message: 'Category not found!' })
 
     res.status(200).json({ message: 'Category successfull added!' })
   } catch (error) {
@@ -148,10 +148,10 @@ export async function editCurrentCategory(req: Request, res: Response) {
       // deleting category image
       const currentImageId = (currentCategory?.image as any) || ''
       const responseImage = await deleteCurrentDataInDBCollection(dbNames.images, contentDBCollections.categories, currentImageId)
-      if (responseImage.deletedCount === 0) return res.status(500).json({ message: 'Category image not found in database!' })
+      if (responseImage.deletedCount === 0) return res.status(404).json({ message: 'Category image not found in database!' })
 
       fs.readFile(fileName, async (err, data) => {
-        if (err) return res.status(500).json({ message: 'Image file not found!' })
+        if (err) return res.status(404).json({ message: 'Image file not found!' })
         try {
           await uploadImageToDB(dbNames.images, contentDBCollections.categories, imageId, fileName)
         } catch {
@@ -162,6 +162,7 @@ export async function editCurrentCategory(req: Request, res: Response) {
 
     const data = {
       ...currentCategory,
+      id: title_en?.split(' ')?.join('-')?.toLocaleLowerCase() || currentCategory?.id,
       title_en: title_en || currentCategory?.title_en,
       title_ru: title_ru || currentCategory?.title_ru,
       title_uz: title_uz || currentCategory?.title_uz,
@@ -179,7 +180,7 @@ export async function editCurrentCategory(req: Request, res: Response) {
 
     const response = await categoryDB.replaceOne({ id: categoryId }, data)
 
-    if (response.matchedCount === 0) return res.status(500).json({ message: 'Category not found!' })
+    if (response.matchedCount === 0) return res.status(404).json({ message: 'Category not found!' })
 
     res.status(200).json({ message: 'Category successfull edited!' })
   } catch (error) {
@@ -197,12 +198,12 @@ export async function deleteCurrentCategory(req: Request, res: Response) {
     // deleting category image
     const imageId = (currentCategory?.image as any) || ''
     const responseImage = await deleteCurrentDataInDBCollection(dbNames.images, contentDBCollections.categories, imageId)
-    if (responseImage.deletedCount === 0) return res.status(500).json({ message: 'Category image not found!' })
+    if (responseImage.deletedCount === 0) return res.status(404).json({ message: 'Category image not found!' })
 
     // deleting category
     const response = await deleteCurrentDataInDBCollection(dbNames.contentDB, contentDBCollections.categories, categoryId)
 
-    if (response.deletedCount === 0) return res.status(500).json({ message: 'Category not found!' })
+    if (response.deletedCount === 0) return res.status(404).json({ message: 'Category not found!' })
 
     res.status(200).json({ message: 'Category successfull deleted!' })
   } catch (error) {
@@ -248,12 +249,12 @@ export async function deleteManyCategories(req: Request, res: Response) {
 
     // Deleting categories images in DB Collection
     const resultImage = await imageDB.deleteMany({ _id: { $in: objectImagesIds } })
-    if (resultImage?.deletedCount === 0) return res.status(500).json({ message: 'Categories images not found!' })
+    if (resultImage?.deletedCount === 0) return res.status(404).json({ message: 'Categories images not found!' })
 
     // Delete documents with the specified IDs
     const result = await categoryDB.deleteMany({ _id: { $in: objectIds } })
 
-    if (result?.deletedCount === 0) return res.status(500).json({ message: 'Categories not found!' })
+    if (result?.deletedCount === 0) return res.status(404).json({ message: 'Categories not found!' })
     res.status(200).json({ message: `${result.deletedCount} categories deleted!` })
   } catch (error) {
     res.status(500).json({ message: 'Error in deleting categories, please try again later!' })

@@ -56,7 +56,7 @@ export async function getCurrentManufacturer(req: Request, res: Response) {
     // Get current manufacturer
     const manufacturer: IManufacturer | null = (await getCurrentDataInDBCollection(dbNames.contentDB, contentDBCollections.manufacturer, manufacturerId)) as IManufacturer | null
 
-    if (!manufacturer) return res.status(500).json({ message: 'Manufacturer not found!' })
+    if (!manufacturer) return res.status(404).json({ message: 'Manufacturer not found!' })
 
     // Send manufacturer
     res.status(200).json(manufacturer)
@@ -84,7 +84,7 @@ export async function addCurrentManufacturer(req: Request, res: Response) {
     }
 
     const response = await manufacturerDB.insertOne(data)
-    if (!response.insertedId) return res.status(500).json({ message: 'Manufacturer not found!' })
+    if (!response.insertedId) return res.status(404).json({ message: 'Manufacturer not found!' })
 
     res.status(200).json({ message: 'Manufacturer successfull added!' })
   } catch (error) {
@@ -114,7 +114,7 @@ export async function editCurrentManufacturer(req: Request, res: Response) {
 
     const response = await manufacturerDB.replaceOne({ id: manufacturerId }, data)
 
-    if (response.matchedCount === 0) return res.status(500).json({ message: 'Manufacturer not found!' })
+    if (response.matchedCount === 0) return res.status(404).json({ message: 'Manufacturer not found!' })
 
     res.status(200).json({ message: 'Manufacturer successfull edited!' })
   } catch (error) {
@@ -129,7 +129,7 @@ export async function deleteCurrentManufacturer(req: Request, res: Response) {
     // deleting manufacturer
     const response = await deleteCurrentDataInDBCollection(dbNames.contentDB, contentDBCollections.manufacturer, manufacturerId)
 
-    if (response.deletedCount === 0) return res.status(500).json({ message: 'Manufacturer not found!' })
+    if (response.deletedCount === 0) return res.status(404).json({ message: 'Manufacturer not found!' })
 
     res.status(200).json({ message: 'Manufacturer successfull deleted!' })
   } catch (error) {
@@ -155,7 +155,7 @@ export async function deleteManyManufacturer(req: Request, res: Response) {
     // Delete documents with the specified IDs
     const result = await manufacturerDB.deleteMany({ _id: { $in: objectIds } })
 
-    if (result?.deletedCount === 0) return res.status(500).json({ message: 'Manufacturers not found!' })
+    if (result?.deletedCount === 0) return res.status(404).json({ message: 'Manufacturers not found!' })
     res.status(200).json({ message: `${result.deletedCount} manufacturers deleted!` })
   } catch (error) {
     res.status(500).json({ message: 'Error in deleting manufacturers, please try again later!' })

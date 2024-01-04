@@ -1,8 +1,12 @@
 import { MongoClient, Binary } from 'mongodb'
+const config = require('config')
 import fs from 'fs'
 
 // Helpers
 import fileDelete from '../utils/fileDelete'
+
+// Utils
+import updateDB from '../utils/updateDBJSON'
 
 require('dotenv').config()
 
@@ -77,44 +81,28 @@ export async function uploadImageToDB(dbName: string, collection: string, dataId
   fileDelete(imagePath)
 }
 
-// const data = {
-//   _id: { $oid: '65843dc4b1fc17cfa69e6f69' },
-//   id: 'c4fbab2c-7759-44e6-9e7d-944c5504d8b0',
-//   gmail: { en: 'Flakonuz@gmail.com', ru: 'Flakonuz@mail.ru' },
-//   phone: ['+998881561256', '+998991101256'],
-//   telegram: 'Flakonuz',
-//   instagram: 'Flakonuz',
-//   website: 'flakon.uz',
-// }
+// Uploading image to local db collection
+export async function uploadImageToLocalDB(dbName: string, dataId: string, imagePath: string) {
+  const db = await JSON.parse(JSON.stringify(config.get(dbName)))
 
-async function setPDF() {
-  const pdfFilePath = 'src/Catalog/catalogflakon2211.pdf'
+  const currentDBItem = await db.find((item: any) => item?.id === dataId)
 
-  const writeStream = fs.createWriteStream(pdfFilePath)
+  // Read the image file as binary data
+  const imageData = fs.readFileSync(imagePath)
+  const binaryData = new Binary(imageData)
 
-  await new Promise((resolve, reject) => {
-    writeStream.on('finish', async () => {
-      resolve(pdfFilePath)
-      fs.readFile(pdfFilePath, async (err, data) => {
-        const db = getDBCollection('companyDB', 'settings')
-        console.log(data)
+  // Create an object to be inserted into the collection
+  const imageDocument = {
+    id: dataId,
+    data: binaryData,
+    contentType: `image/${imagePath.split('.')[1]}`,
+  }
 
-        const response = await db.insertOne({
-          id: 'c4fbab2c-7759-44e6-9e7d-944c5504d8b0',
-          gmail: { en: 'Flakonuz@gmail.com', ru: 'Flakonuz@mail.ru' },
-          phone: ['+998881561256', '+998991101256'],
-          telegram: 'Flakonuz',
-          instagram: 'Flakonuz',
-          website: 'flakon.uz',
-          catalogPDF: data.toJSON(),
-        })
-        console.log(response)
-      })
-    })
-    writeStream.on('error', (err) => {
-      fs.unlink(pdfFilePath, () => reject(err))
-      reject(err)
-    })
-  })
+  if (currentDBItem) {
+    updateDB('USERS', imageDocument, 'PUT', dataId)
+  } else {
+    updateDB('USERS', imageDocument)
+  }
+
+  fileDelete(imagePath)
 }
-// setPDF()
