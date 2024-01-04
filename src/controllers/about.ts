@@ -84,28 +84,32 @@ export async function sendFeedback(req: Request, res: Response) {
 
 export async function updateAboutSettings(req: Request, res: Response) {
   try {
-    const { id, addressName_en, addressName_ru, addressName_uz, gmail_en, gmail_ru, phone1, phone2, telegram, instagram, website, videoLink } = req.body
+    const settingsId = req.params.id?.split('&type=')[0]
+    const type = req.params.id?.split('&type=')[1]
 
-    if (!id || !addressName_en || !addressName_ru || !addressName_uz || !gmail_en || !gmail_ru || !phone1 || !phone2 || !telegram || !instagram || !website || !videoLink) {
+    const { addressEn, addressRu, addressUz, mailEn, mailRu, phone1, phone2, telegram, instagram, website, youtube, videoLink } = req.body
+    
+    if (type === 'general' && (addressEn && !addressEn || !addressRu || !addressUz || !mailEn || !mailRu || !phone1 || !phone2 || !videoLink) || type === 'social' && (!telegram || !instagram || !website || !youtube)) {
       return res.status(400).json({ message: 'Params are required!' })
     }
-    const settingsId = req.params.id
+    
     const db: Collection<Document> = getDBCollection(dbNames.companyDB, companyDBCollections.settings) as Collection<Document>
 
     if (!db) return res.status(500).json(null)
-    const data = {
-      id,
-      addressName: { en: addressName_en, ru: addressName_ru, uz: addressName_uz },
-      gmail: { en: gmail_en, ru: gmail_ru },
+    const data = type === 'general' ? {
+      addressName: { en: addressEn, ru: addressRu, uz: addressUz },
+      gmail: { en: mailEn, ru: mailRu },
       phone: [phone1, phone2],
+      videoLink,
+    } : {
       telegram,
       instagram,
       website,
-      videoLink,
+      youtube
     }
 
-    const response = await db.updateOne({ id: settingsId }, data)
-    if (response?.upsertedCount === 0) return res.status(404).json({ message: 'Settings not updated!' })
+    const response = await db.updateOne({ id: settingsId }, { $set: data })
+    if (response?.modifiedCount === 0) return res.status(404).json({ message: 'Settings not updated!' })
 
     res.status(200).json({ message: 'Settings successfull updated!', data })
   } catch (error) {
