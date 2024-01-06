@@ -6,7 +6,7 @@ import { getCurrentDataInDBCollection, getDBCollection } from '../mongoDataBase'
 
 export async function getAllImages(dbName: string, collection: string): Promise<IImage[] | string> {
   try {
-    const imagesDocument: IImage[] = await getDBCollection(dbName, collection).find({}).toArray() as IImage[] | []
+    const imagesDocument: IImage[] = (await getDBCollection(dbName, collection).find({}).toArray()) as IImage[] | []
 
     if (!imagesDocument || imagesDocument.length === 0) {
       return 'Images not found!'

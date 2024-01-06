@@ -44,8 +44,10 @@ export async function getManufacturerList(req: Request, res: Response) {
         totalPages: Math.ceil(filteredManufacturer?.length / limit),
       },
     })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in getting manufacturers. Try again later!' })
+    return
   }
 }
 
@@ -60,8 +62,10 @@ export async function getCurrentManufacturer(req: Request, res: Response) {
 
     // Send manufacturer
     res.status(200).json(manufacturer)
+    return
   } catch (error) {
     res.status(500).json({ message: error })
+    return
   }
 }
 
@@ -87,8 +91,10 @@ export async function addCurrentManufacturer(req: Request, res: Response) {
     if (!response.insertedId) return res.status(404).json({ message: 'Manufacturer not found!' })
 
     res.status(200).json({ message: 'Manufacturer successfull added!' })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in adding new manufacturer, please try again later!' })
+    return
   }
 }
 
@@ -117,8 +123,10 @@ export async function editCurrentManufacturer(req: Request, res: Response) {
     if (response.matchedCount === 0) return res.status(404).json({ message: 'Manufacturer not found!' })
 
     res.status(200).json({ message: 'Manufacturer successfull edited!' })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in editing manufacturer!' })
+    return
   }
 }
 
@@ -132,8 +140,10 @@ export async function deleteCurrentManufacturer(req: Request, res: Response) {
     if (response.deletedCount === 0) return res.status(404).json({ message: 'Manufacturer not found!' })
 
     res.status(200).json({ message: 'Manufacturer successfull deleted!' })
+    return
   } catch (error) {
     res.status(500).json({ message: error })
+    return
   }
 }
 
@@ -157,7 +167,9 @@ export async function deleteManyManufacturer(req: Request, res: Response) {
 
     if (result?.deletedCount === 0) return res.status(404).json({ message: 'Manufacturers not found!' })
     res.status(200).json({ message: `${result.deletedCount} manufacturers deleted!` })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in deleting manufacturers, please try again later!' })
+    return
   }
 }

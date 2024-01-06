@@ -44,8 +44,10 @@ export async function getMaterialsList(req: Request, res: Response) {
         totalPages: Math.ceil(filteredMaterials?.length / limit),
       },
     })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in getting materials. Try again later!' })
+    return
   }
 }
 
@@ -60,8 +62,10 @@ export async function getCurrentMaterial(req: Request, res: Response) {
 
     // Send material
     res.status(200).json(material)
+    return
   } catch (error) {
     res.status(500).json({ message: error })
+    return
   }
 }
 
@@ -85,8 +89,10 @@ export async function addCurrentMaterial(req: Request, res: Response) {
     if (!response.insertedId) return res.status(404).json({ message: 'Material not found!' })
 
     res.status(200).json({ message: 'Material successfull added!' })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in adding new material, please try again later!' })
+    return
   }
 }
 
@@ -113,8 +119,10 @@ export async function editCurrentMaterial(req: Request, res: Response) {
     if (response.matchedCount === 0) return res.status(404).json({ message: 'Material not found!' })
 
     res.status(200).json({ message: 'Material successfull edited!' })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in editing material!' })
+    return
   }
 }
 
@@ -128,8 +136,10 @@ export async function deleteCurrentMaterial(req: Request, res: Response) {
     if (response.deletedCount === 0) return res.status(404).json({ message: 'Material not found!' })
 
     res.status(200).json({ message: 'Material successfull deleted!' })
+    return
   } catch (error) {
     res.status(500).json({ message: error })
+    return
   }
 }
 
@@ -153,7 +163,9 @@ export async function deleteManyMaterial(req: Request, res: Response) {
 
     if (result?.deletedCount === 0) return res.status(404).json({ message: 'Materials not found!' })
     res.status(200).json({ message: `${result.deletedCount} materials deleted!` })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in deleting materials, please try again later!' })
+    return
   }
 }

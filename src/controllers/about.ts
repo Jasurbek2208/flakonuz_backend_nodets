@@ -18,7 +18,7 @@ import { dbNames, companyDBCollections, imagesDBCollections, contentDBCollection
 import { ICompanyNews, IImage, ISettings } from '../types'
 
 // ABOUT SETTINGS CONTROLLERS
-export async function getAboutSettings(req: Request, res: Response) {
+export async function getAboutSettings(_req: Request, res: Response) {
   try {
     const db: ISettings[] = (await getAllDataInDBCollection(dbNames.companyDB, companyDBCollections.settings)) as ISettings[] | []
 
@@ -30,8 +30,10 @@ export async function getAboutSettings(req: Request, res: Response) {
     delete settings?.catalogPDF
 
     res.status(200).json(settings)
+    return
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' })
+    return
   }
 }
 
@@ -72,6 +74,7 @@ export async function sendFeedback(req: Request, res: Response) {
         message_uz: "Xabar yuborilmadi, birozdan so'ng qayta urinib ko'ring!",
       })
     }
+    return
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -79,6 +82,7 @@ export async function sendFeedback(req: Request, res: Response) {
       message_ru: 'Не удалось отправить сообщение. Повторите попытку позже!',
       message_uz: "Xabar yuborilmadi, birozdan so'ng qayta urinib ko'ring!",
     })
+    return
   }
 }
 
@@ -88,32 +92,40 @@ export async function updateAboutSettings(req: Request, res: Response) {
     const type = req.params.id?.split('&type=')[1]
 
     const { addressEn, addressRu, addressUz, mailEn, mailRu, phone1, phone2, telegram, instagram, website, youtube, videoLink } = req.body
-    
-    if (type === 'general' && (addressEn && !addressEn || !addressRu || !addressUz || !mailEn || !mailRu || !phone1 || !phone2 || !videoLink) || type === 'social' && (!telegram || !instagram || !website || !youtube)) {
+
+    if (
+      (type === 'general' && ((addressEn && !addressEn) || !addressRu || !addressUz || !mailEn || !mailRu || !phone1 || !phone2 || !videoLink)) ||
+      (type === 'social' && (!telegram || !instagram || !website || !youtube))
+    ) {
       return res.status(400).json({ message: 'Params are required!' })
     }
-    
+
     const db: Collection<Document> = getDBCollection(dbNames.companyDB, companyDBCollections.settings) as Collection<Document>
 
     if (!db) return res.status(500).json(null)
-    const data = type === 'general' ? {
-      addressName: { en: addressEn, ru: addressRu, uz: addressUz },
-      gmail: { en: mailEn, ru: mailRu },
-      phone: [phone1, phone2],
-      videoLink,
-    } : {
-      telegram,
-      instagram,
-      website,
-      youtube
-    }
+    const data =
+      type === 'general'
+        ? {
+            addressName: { en: addressEn, ru: addressRu, uz: addressUz },
+            gmail: { en: mailEn, ru: mailRu },
+            phone: [phone1, phone2],
+            videoLink,
+          }
+        : {
+            telegram,
+            instagram,
+            website,
+            youtube,
+          }
 
     const response = await db.updateOne({ id: settingsId }, { $set: data })
     if (response?.modifiedCount === 0) return res.status(404).json({ message: 'Settings not updated!' })
 
     res.status(200).json({ message: 'Settings successfull updated!', data })
+    return
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' })
+    return
   }
 }
 
@@ -168,8 +180,10 @@ export async function getCompanyNews(req: Request, res: Response) {
         },
       })
     }
+    return
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' })
+    return
   }
 }
 
@@ -188,8 +202,10 @@ export async function getCurrentCompanyNews(req: Request, res: Response) {
 
     // Send companny current news
     res.status(200).json(newsWithImages)
+    return
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' })
+    return
   }
 }
 
@@ -212,7 +228,7 @@ export async function addCurrentCompanyNews(req: Request, res: Response) {
     const imageId = v4()
     const fileName = `src/uploads/${file.filename}`
 
-    fs.readFile(fileName, async (err, data) => {
+    fs.readFile(fileName, async (err, _data): Promise<any> => {
       if (err) return res.status(404).json({ message: 'Image file not found!' })
       try {
         await uploadImageToDB(dbNames.images, companyDBCollections.news, imageId, fileName)
@@ -237,8 +253,10 @@ export async function addCurrentCompanyNews(req: Request, res: Response) {
     if (!response.insertedId) return res.status(404).json({ message: 'Company News not found!' })
 
     res.status(200).json({ message: 'Company News successfull added!' })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in adding new Company 0News, please try again later!' })
+    return
   }
 }
 
@@ -269,7 +287,7 @@ export async function editCurrentCompanyNews(req: Request, res: Response) {
       const responseImage = await deleteCurrentDataInDBCollection(dbNames.images, companyDBCollections.news, currentImageId)
       if (responseImage.deletedCount === 0) return res.status(404).json({ message: 'Current Company News image not found in database!' })
 
-      fs.readFile(fileName, async (err, data) => {
+      fs.readFile(fileName, async (err, _data): Promise<any> => {
         if (err) return res.status(404).json({ message: 'Image file not found!' })
         try {
           await uploadImageToDB(dbNames.images, companyDBCollections.news, imageId, fileName)
@@ -296,8 +314,10 @@ export async function editCurrentCompanyNews(req: Request, res: Response) {
     if (response.matchedCount === 0) return res.status(404).json({ message: 'Current Company News not found!' })
 
     res.status(200).json({ message: 'Current Company News successfull edited!' })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in editing Current Company News!' })
+    return
   }
 }
 
@@ -319,8 +339,10 @@ export async function deleteCurrentNews(req: Request, res: Response) {
     if (response.deletedCount === 0) return res.status(404).json({ message: 'Current Company News not found!' })
 
     res.status(200).json({ message: 'Current Company News successfull deleted!' })
+    return
   } catch (error) {
     res.status(500).json({ message: error })
+    return
   }
 }
 
@@ -369,12 +391,14 @@ export async function deleteManyCompanyNews(req: Request, res: Response) {
 
     if (result?.deletedCount === 0) return res.status(404).json({ message: 'Current Company News not found!' })
     res.status(200).json({ message: `${result.deletedCount} current Company News deleted!` })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in deleting current Company News, please try again later!' })
+    return
   }
 }
 
-export async function getStatistics(req: Request, res: Response) {
+export async function getStatistics(_req: Request, res: Response) {
   try {
     const categories: Collection<Document> = getDBCollection(dbNames.contentDB, contentDBCollections.categories) as Collection<Document>
     const products: Collection<Document> = getDBCollection(dbNames.contentDB, contentDBCollections.products) as Collection<Document>
@@ -397,12 +421,14 @@ export async function getStatistics(req: Request, res: Response) {
     }
 
     res.status(200).json(statistics)
+    return
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' })
+    return
   }
 }
 
-export async function getCatalogPDF(req: Request, res: Response) {
+export async function getCatalogPDF(_req: Request, res: Response) {
   try {
     const filePath = 'src/uploads/catalogflakon2211.pdf'
 
@@ -416,7 +442,9 @@ export async function getCatalogPDF(req: Request, res: Response) {
     fileStream.pipe(res)
     res.setHeader('Content-Type', 'application/pdf')
     res.setHeader('Content-Disposition', 'inline; filename=catalogflakon2211.pdf')
+    return
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' })
+    return
   }
 }

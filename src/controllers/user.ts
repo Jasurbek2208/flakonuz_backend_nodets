@@ -9,7 +9,6 @@ import { getDBCollection, uploadImageToLocalDB } from '../mongoDataBase'
 import { adminsDBCollections, dbNames } from '../utils/constants'
 
 // Utils
-import fileDelete from '../utils/fileDelete'
 import updateDB from '../utils/updateDBJSON'
 import passwordHasher from '../utils/passwordHasher'
 
@@ -56,6 +55,7 @@ export async function updateProfile(req: Request, res: Response) {
     message: 'Your profile successfull updated!',
     user: { _id: user?._id, id: user?.id, name: user?.name, surname: user?.surname, username: user?.username },
   })
+  return
 }
 
 // Update user profile image
@@ -75,7 +75,7 @@ export async function updateProfileImage(req: Request, res: Response) {
   const imageId = currentUser?.image || v4()
   const fileName = `src/uploads/${file.filename}`
 
-  fs.readFile(fileName, async (err, data) => {
+  fs.readFile(fileName, async (err, _data): Promise<any> => {
     if (err) return res.status(404).json({ message: 'Image file not found!' })
     try {
       await uploadImageToLocalDB('USERS', imageId, fileName)
@@ -100,6 +100,7 @@ export async function updateProfileImage(req: Request, res: Response) {
     message: 'Your profile image successfull updated!',
     image: currentDBImage,
   })
+  return
 }
 
 // Update user profile image
@@ -130,6 +131,7 @@ export async function deleteProfileImage(req: Request, res: Response) {
     message: 'Your profile image successfull deleted!',
     image: '',
   })
+  return
 }
 
 // Update Password
@@ -163,8 +165,10 @@ export async function updateProfilePassword(req: Request, res: Response) {
       message: 'Your password successfull edited!',
       user: { _id: user?._id, name: user?.name, surname: user?.surname, username: user?.username, image: user?.image },
     })
+    return
   } else {
     res.status(401)
     res.json({ message: 'Username or password entered incorrectly!' })
+    return
   }
 }

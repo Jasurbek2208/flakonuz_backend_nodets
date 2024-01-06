@@ -52,9 +52,10 @@ export async function getCategoriesList(req: Request, res: Response) {
         totalPages: Math.ceil(filteredCategories?.length / limit),
       },
     })
+    return
   } catch (error) {
-    console.log(error)
     res.status(500).json({ message: 'Error in getting categories. Try again later!' })
+    return
   }
 }
 
@@ -73,8 +74,10 @@ export async function getCurrentCategory(req: Request, res: Response) {
 
     // Send category
     res.status(200).json(categoryWithImage)
+    return
   } catch (error) {
     res.status(500).json({ message: error })
+    return
   }
 }
 
@@ -97,7 +100,7 @@ export async function addCurrentCategory(req: Request, res: Response) {
     const imageId = v4()
     const fileName = `src/uploads/${file.filename}`
 
-    fs.readFile(fileName, async (err, data) => {
+    fs.readFile(fileName, async (err, _data): Promise<any> => {
       if (err) return res.status(404).json({ message: 'Image file not found!' })
       try {
         await uploadImageToDB(dbNames.images, contentDBCollections.categories, imageId, fileName)
@@ -121,8 +124,10 @@ export async function addCurrentCategory(req: Request, res: Response) {
     if (!response.insertedId) return res.status(404).json({ message: 'Category not found!' })
 
     res.status(200).json({ message: 'Category successfull added!' })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in adding new category, please try again later!' })
+    return
   }
 }
 
@@ -130,7 +135,6 @@ export async function editCurrentCategory(req: Request, res: Response) {
   try {
     const { title_en, title_ru, title_uz, aboutCategory_en, aboutCategory_ru, aboutCategory_uz } = req.body
     const categoryId = req.params.id
-    // Handle the uploaded file
     const file = req.file
 
     if (!title_en || !title_ru || !title_uz) {
@@ -150,7 +154,7 @@ export async function editCurrentCategory(req: Request, res: Response) {
       const responseImage = await deleteCurrentDataInDBCollection(dbNames.images, contentDBCollections.categories, currentImageId)
       if (responseImage.deletedCount === 0) return res.status(404).json({ message: 'Category image not found in database!' })
 
-      fs.readFile(fileName, async (err, data) => {
+      fs.readFile(fileName, async (err, _data): Promise<any> => {
         if (err) return res.status(404).json({ message: 'Image file not found!' })
         try {
           await uploadImageToDB(dbNames.images, contentDBCollections.categories, imageId, fileName)
@@ -183,8 +187,10 @@ export async function editCurrentCategory(req: Request, res: Response) {
     if (response.matchedCount === 0) return res.status(404).json({ message: 'Category not found!' })
 
     res.status(200).json({ message: 'Category successfull edited!' })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in editing category!' })
+    return
   }
 }
 
@@ -206,8 +212,10 @@ export async function deleteCurrentCategory(req: Request, res: Response) {
     if (response.deletedCount === 0) return res.status(404).json({ message: 'Category not found!' })
 
     res.status(200).json({ message: 'Category successfull deleted!' })
+    return
   } catch (error) {
     res.status(500).json({ message: error })
+    return
   }
 }
 
@@ -256,7 +264,9 @@ export async function deleteManyCategories(req: Request, res: Response) {
 
     if (result?.deletedCount === 0) return res.status(404).json({ message: 'Categories not found!' })
     res.status(200).json({ message: `${result.deletedCount} categories deleted!` })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in deleting categories, please try again later!' })
+    return
   }
 }

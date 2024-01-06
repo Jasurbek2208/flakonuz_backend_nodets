@@ -17,5 +17,5 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
   const currentUser = await admins.findOne({ access_token: token })
   if (!currentUser) return res.status(401).json({ message: 'Unauthorized. Token not found in the database.' })
   
-  next()
+  return next()
 }

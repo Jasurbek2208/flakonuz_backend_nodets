@@ -44,8 +44,10 @@ export async function getColorsList(req: Request, res: Response) {
         totalPages: Math.ceil(filteredColors?.length / limit),
       },
     })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in getting colors. Try again later!' })
+    return
   }
 }
 
@@ -60,8 +62,10 @@ export async function getCurrentColor(req: Request, res: Response) {
 
     // Send color
     res.status(200).json(color)
+    return
   } catch (error) {
     res.status(500).json({ message: error })
+    return
   }
 }
 
@@ -87,8 +91,10 @@ export async function addCurrentColor(req: Request, res: Response) {
     if (!response.insertedId) return res.status(404).json({ message: 'Color not found!' })
 
     res.status(200).json({ message: 'Color successfull added!' })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in adding new color, please try again later!' })
+    return
   }
 }
 
@@ -117,8 +123,10 @@ export async function editCurrentColor(req: Request, res: Response) {
     if (response.matchedCount === 0) return res.status(404).json({ message: 'Color not found!' })
 
     res.status(200).json({ message: 'Color successfull edited!' })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in editing color!' })
+    return
   }
 }
 
@@ -132,8 +140,10 @@ export async function deleteCurrentColor(req: Request, res: Response) {
     if (response.deletedCount === 0) return res.status(404).json({ message: 'Color not found!' })
 
     res.status(200).json({ message: 'Color successfull deleted!' })
+    return
   } catch (error) {
     res.status(500).json({ message: error })
+    return
   }
 }
 
@@ -157,7 +167,9 @@ export async function deleteManyColor(req: Request, res: Response) {
 
     if (result?.deletedCount === 0) return res.status(404).json({ message: 'Colors not found!' })
     res.status(200).json({ message: `${result.deletedCount} colors deleted!` })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in deleting colors, please try again later!' })
+    return
   }
 }

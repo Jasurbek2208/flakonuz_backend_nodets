@@ -42,6 +42,7 @@ const login = async (req: Request, res: Response) => {
     res.status(401)
     res.json({ message: 'Username or password entered incorrectly!' })
   }
+  return
 }
 
 // UserME
@@ -69,6 +70,7 @@ const userme = async (req: Request, res: Response) => {
     status: 200,
     user: { _id: currentUser?._id, id: currentUser?.id, name: currentUser?.name, surname: currentUser?.surname, username: currentUser?.username, image: currentDBImage },
   })
+  return
 }
 
 export { login, userme }

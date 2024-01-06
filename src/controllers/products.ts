@@ -67,8 +67,10 @@ export async function getProductsList(req: Request, res: Response) {
         totalPages: Math.ceil(filteredProducts?.length / limit),
       },
     })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in getting products. Try again later!' })
+    return
   }
 }
 
@@ -87,15 +89,16 @@ export async function getCurrentProduct(req: Request, res: Response) {
 
     // Send product
     res.status(200).json(productWithImage)
+    return
   } catch (error) {
     res.status(500).json({ message: error })
+    return
   }
 }
 
 export async function addCurrentProduct(req: Request, res: Response) {
   try {
     const { id, title, height, width, diameter, ml, material, category } = req.body
-    // Handle the uploaded file
     const file = req.file
     if (!file) {
       return res.status(400).json({ message: 'No file uploaded.' })
@@ -111,7 +114,7 @@ export async function addCurrentProduct(req: Request, res: Response) {
     const imageId = v4()
     const fileName = `src/uploads/${file.filename}`
 
-    fs.readFile(fileName, async (err, data) => {
+    fs.readFile(fileName, async (err, _data): Promise<any> => {
       if (err) return res.status(404).json({ message: 'Image file not found!' })
       try {
         await uploadImageToDB(dbNames.images, contentDBCollections.products, imageId, fileName)
@@ -136,8 +139,10 @@ export async function addCurrentProduct(req: Request, res: Response) {
     if (!response.insertedId) return res.status(404).json({ message: 'Product not found!' })
 
     res.status(200).json({ message: 'Product successfull added!' })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in adding new product, please try again later!' })
+    return
   }
 }
 
@@ -171,7 +176,7 @@ export async function editCurrentProduct(req: Request, res: Response) {
       const responseImage = await deleteCurrentDataInDBCollection(dbNames.images, contentDBCollections.products, currentImageId)
       if (responseImage.deletedCount === 0) return res.status(404).json({ message: 'Product image not found in database!' })
 
-      fs.readFile(fileName, async (err, data) => {
+      fs.readFile(fileName, async (err, _data): Promise<any> => {
         if (err) return res.status(404).json({ message: 'Image file not found!' })
         try {
           await uploadImageToDB(dbNames.images, contentDBCollections.products, imageId || '', fileName)
@@ -196,8 +201,10 @@ export async function editCurrentProduct(req: Request, res: Response) {
     const response = await productDB.replaceOne({ id: productId }, data)
     if (response.matchedCount === 0) return res.status(404).json({ message: 'Product not found!' })
     res.status(200).json({ message: 'Product successfull edited!' })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in editing product!' })
+    return
   }
 }
 
@@ -219,8 +226,10 @@ export async function deleteCurrentProduct(req: Request, res: Response) {
     if (response.deletedCount === 0) return res.status(404).json({ message: 'Product not found!' })
 
     res.status(200).json({ message: 'Product successfull deleted!' })
+    return
   } catch (error) {
     res.status(500).json({ message: error })
+    return
   }
 }
 
@@ -269,7 +278,9 @@ export async function deleteManyProducts(req: Request, res: Response) {
 
     if (result?.deletedCount === 0) return res.status(404).json({ message: 'Products not found!' })
     res.status(200).json({ message: `${result.deletedCount} products deleted!` })
+    return
   } catch (error) {
     res.status(500).json({ message: 'Error in deleting products, please try again later!' })
+    return
   }
 }

@@ -12,4 +12,5 @@ export default function passwordHasher(password: string, userId: string, method:
     const secondHash: string = [checkerId, firsHash, checkerId]?.join('')
     return secondHash
   }
+  return
 }
